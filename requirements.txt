@@ -21,7 +21,6 @@ jiter==0.14.0
 MarkupSafe==2.1.5
 mysql-connector-python==8.4.0
 mysqlclient==2.2.4
-openai==2.32.0
 packaging==26.2
 pillow==10.4.0
 pydantic==2.13.3

@@ -12,9 +12,13 @@ from .views import generate_cake
 from .views import confirm_order
 from .views import logout_confirm
 from .views import logout_do
+from django.shortcuts import redirect
 
+def home(request):
+    return redirect('login/')
 
 urlpatterns = [
+    path('', home),
     path("login/", login_view),
     path("menu/", menu_list),
     path("menu/<int:menu_id>/", menu_detail),

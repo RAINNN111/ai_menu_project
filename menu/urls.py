@@ -2,7 +2,7 @@ from django.urls import path
 from .views import login_view, menu_list, menu_detail
 from .views import add_to_cart
 from .views import cart_view
-from .views import ai_upload
+# from .views import ai_upload
 from .views import register
 from .views import profile
 from . import views
@@ -20,7 +20,7 @@ urlpatterns = [
     path("menu/<int:menu_id>/", menu_detail),
     path("cart/add/", add_to_cart),
     path("cart/", cart_view),
-    path("ai/", ai_upload), 
+    # path("ai/", ai_upload), 
     path("register/", register),
     path("cart/update/", views.cart_update),
     path("cart/delete/", views.cart_delete),

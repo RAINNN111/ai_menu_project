@@ -536,43 +536,43 @@ def register(request):
 
         return JsonResponse({"status": "登録成功"})
 
-client = OpenAI()
+# client = OpenAI()
 
-def ai_upload(request):
-    if request.method == "POST":
-        image_file = request.FILES.get("image")
+# def ai_upload(request):
+#     if request.method == "POST":
+#         image_file = request.FILES.get("image")
 
-        # 转 base64
-        image_bytes = image_file.read()
-        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+#         # 转 base64
+#         image_bytes = image_file.read()
+#         image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "这是什么食物？请只用一个英文单词回答"},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}"
-                            }
-                        }
-                    ]
-                }
-            ]
-        )
+#         response = client.chat.completions.create(
+#             model="gpt-4o-mini",
+#             messages=[
+#                 {
+#                     "role": "user",
+#                     "content": [
+#                         {"type": "text", "text": "这是什么食物？请只用一个英文单词回答"},
+#                         {
+#                             "type": "image_url",
+#                             "image_url": {
+#                                 "url": f"data:image/jpeg;base64,{image_base64}"
+#                             }
+#                         }
+#                     ]
+#                 }
+#             ]
+#         )
 
-        result = response.choices[0].message.content.lower()
-        print("AI识别结果:", result)
+#         result = response.choices[0].message.content.lower()
+#         print("AI识别结果:", result)
 
-        menus = Menu.objects.filter(tags__icontains=result)
+#         menus = Menu.objects.filter(tags__icontains=result)
 
-        return render(request, "ai_upload.html", {
-            "result": result,
-            "menus": menus
-        })
+#         return render(request, "ai_upload.html", {
+#             "result": result,
+#             "menus": menus
+#         })
 
     return render(request, "ai_upload.html")
 

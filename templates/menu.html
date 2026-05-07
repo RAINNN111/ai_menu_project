@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>メニューシステム</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Arial", sans-serif;
+            background: #fff7f2; /* 微暖奶油色，比纯白更舒服 */
+        }
+
+        /* ================= ヘッダー ================= */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 30px;
+
+            /* 改成奶油粉渐变，更像蛋糕店 */
+            background: linear-gradient(90deg, #ffffff, #fff1f4);
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-bottom: 1px solid #ffe3ea;
+        }
+
+        /* LOGO */
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d46a8c;
+            text-decoration: none; /* 去掉下划线 */
+            letter-spacing: 1px;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        /* 右侧导航 */
+        .nav-right a {
+            margin-left: 18px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #444;
+            transition: 0.3s;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* hover效果 */
+        .nav-right a:hover {
+            background: #ffe3ea;
+            color: #d46a8c;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ================= メニュー ================= */
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .menu-card {
+            display: flex;
+            flex-direction: column;
+
+            height: 260px;   /* ⭐ 固定高度 */
+
+            padding: 10px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu-card:hover {
+            transform: scale(1.03);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;   /* ⭐ 保持裁剪不变形 */
+            border-radius: 10px;
+        }
+
+        .menu-card h3 {
+            font-size: 16px;
+            margin: 8px 0;
+
+            height: 40px;          /* ⭐ 固定高度 */
+            overflow: hidden;
+        }
+
+        .price {
+            margin-top: auto;   /* ⭐ 自动顶到底部 */
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* ================= オーバーレイ ================= */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        /* ================= モーダル ================= */
+        #modal {
+            display: none;
+            position: fixed;
+
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: 650px;
+            padding: 20px;
+
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+
+            z-index: 1001;
+        }
+
+        .modal-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .modal-left img {
+            width: 280px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .modal-right {
+            flex: 1;
+            text-align: left;
+        }
+
+        #modal-name {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .desc {
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0 15px 0;
+            line-height: 1.5;
+        }
+
+        .price-box {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .qty-box button {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: #ddd;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .qty-box input {
+            width: 50px;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .total {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .add {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .close {
+            background: #ccc;
+        }
+
+        .banner {
+            width: 100%;
+            height: 250px;
+            background: url('/media/menu_images/cake.png') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .banner-content h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .banner-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .banner-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #ff6b6b;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .banner-btn:hover {
+            background: #ffecec;
+        }
+
+        .banner-content h1,
+        .banner-content p {
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* ================= 猜你喜欢（修复滑动版）================= */
+        /* .recommend-container {
+            overflow: hidden;
+            display: flex;
+
+        } */
+
+        .recommend-list {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+
+            width: max-content;
+        }
+
+        .recommend-list .menu-card {
+            flex: 0 0 180px;   /* 不伸缩 */
+            width: 180px;
+            height: 240px;
+
+            display: flex;
+            flex-direction: column;
+
+            box-sizing: border-box;
+        }
+</style>
+    
+</head>
+
+<body>
+
+<!-- ================= ヘッダー ================= -->
+<div class="navbar">
+
+    <!-- 左侧：LOGO + MENU -->
+    <div class="nav-left">
+        <a href="/menu/" class="logo">AI Sweet Shop</a>
+    </div>
+
+    <!-- 右侧：用户信息 + 功能 -->
+    <div class="nav-right">
+
+        <!-- Django 登录用户 -->
+        {% if request.user.is_authenticated %}
+            <span class="username">Hello, {{ request.user.username }}</span>
+        {% else %}
+            <span class="username">Guest</span>
+        {% endif %}
+
+        <a href="/profile/">👤</a>
+        <a href="/cart/">🛒</a>
+        <a href="javascript:void(0)" onclick="logout()">🚪</a>
+    </div>
+    <!-- 🔴 全局 Logout Modal -->
+    <div id="logoutModal" class="modal hidden">
+        <div class="modal-box">
+
+            <h3>ログアウトしますか？</h3>
+
+            <div class="modal-actions">
+                <button class="btn-yes" onclick="doLogout()">はい</button>
+                <button class="btn-no" onclick="closeLogout()">いいえ</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<!-- ================= 广告 Banner ================= -->
+<div class="banner">
+    <div class="banner-content">
+        <h1>お好みの味が見つかりませんか？</h1>
+        <p>オリジナルケーキを自由にカスタマイズできます！</p>
+        <a href="{% url 'customize' %}" class="banner-btn">今すぐご購入</a>
+    </div>
+</div>
+<!-- ================= 猜你喜欢 ================= -->
+{% if recommended_cakes and recommended_cakes|length > 0 %}
+
+<div class="recommend-container">
+
+    <h2 class="section-title">あなたへのおすすめ</h2>
+
+    <div class="recommend-list">
+
+        {% for item in recommended_cakes %}
+
+        <div class="menu-card" onclick="showDetail({{ item.id }})">
+
+            {% if item.image %}
+                <img src="{{ item.image.url }}">
+            {% endif %}
+
+            <h3>{{ item.name }}</h3>
+            <p class="price">{{ item.price }}円</p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endif %}
+<!-- ================= メニュー ================= -->
+<h2 class="section-title">本日のメニュー</h2>
+<div class="menu-container">
+
+
+    {% for item in menus %}
+    <div class="menu-card" onclick="showDetail({{ item.id }})">
+
+        {% if item.image %}
+            <img src="{{ item.image.url }}">
+        {% endif %}
+
+        <h3>{{ item.name }}</h3>
+        <p class="price">{{ item.price }}円</p>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+
+<!-- ================= オーバーレイ ================= -->
+<div id="overlay" onclick="closeModal()"></div>
+
+<!-- ================= モーダル ================= -->
+<div id="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-left">
+            <img id="modal-img">
+        </div>
+
+        <div class="modal-right">
+
+            <h2 id="modal-name"></h2>
+
+            <p id="modal-desc" class="desc"></p>
+
+            <div class="price-box">
+                ¥<span id="unit-price">0</span>
+            </div>
+
+            <div class="qty-box">
+                <button onclick="minusQty()">-</button>
+                <input type="text" id="quantity" value="1">
+                <button onclick="plusQty()">+</button>
+            </div>
+
+            <p class="total">合計: ¥<span id="total-price">0</span></p>
+
+            <button class="btn add" onclick="addToCart()">カートに追加</button>
+            <button class="btn close" onclick="closeModal()">閉じる</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+
+window.addEventListener("load", function () {
+
+    const list = document.querySelector(".recommend-list");
+    if (!list) return;
+
+    const items = list.children;
+
+    let speed = 1;
+    let offset = 0;
+    let pause = false;
+
+    // ⭐关键：少于等于7个不滚动
+    if (items.length <= 7) return;
+
+    list.addEventListener("mouseenter", () => pause = true);
+    list.addEventListener("mouseleave", () => pause = false);
+
+    function loop() {
+
+        if (!pause) {
+
+            offset += speed;
+            list.style.transform = `translateX(-${offset}px)`;
+
+            const first = list.children[0];
+
+            if (first) {
+                const width = first.offsetWidth + 15;
+
+                if (offset >= width) {
+                    offset -= width;
+                    list.appendChild(first);
+                    list.style.transform = `translateX(-${offset}px)`;
+                }
+            }
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    loop();
+});
+
+
+let currentMenuId = null;
+let currentPrice = 0;
+
+/* 詳細表示 */
+function showDetail(id) {
+    currentMenuId = id;
+
+    fetch(`/menu/${id}/`)
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("modal-name").innerText = data.name;
+            document.getElementById("modal-desc").innerText = data.description;
+            document.getElementById("modal-img").src = data.image;
+
+            currentPrice = data.price;
+
+            document.getElementById("unit-price").innerText = currentPrice;
+            document.getElementById("quantity").value = 1;
+
+            updateTotal();
+
+            document.getElementById("modal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        });
+}
+
+/* 閉じる */
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+}
+
+/* 数量 + */
+function plusQty() {
+    let q = document.getElementById("quantity");
+    q.value = parseInt(q.value) + 1;
+    updateTotal();
+}
+
+/* 数量 - */
+function minusQty() {
+    let q = document.getElementById("quantity");
+    if (q.value > 1) {
+        q.value = parseInt(q.value) - 1;
+        updateTotal();
+    }
+}
+
+/* 合計更新 */
+function updateTotal() {
+    let qty = document.getElementById("quantity").value;
+    document.getElementById("total-price").innerText = qty * currentPrice;
+}
+
+/* カート追加 */
+function addToCart() {
+    const quantity = document.getElementById("quantity").value;
+
+    fetch("/cart/add/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: currentMenuId,
+            quantity: quantity
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("カートに追加しました！");
+        closeModal();
+    });
+}
+/* LOUGOUT */
+function logout() {
+    document.getElementById("logoutModal").classList.remove("hidden");
+}
+
+function closeLogout() {
+    document.getElementById("logoutModal").classList.add("hidden");
+}
+
+function doLogout() {
+    window.location.href = "/logout/do/";
+}
+
+</script>
+
+</body>
+</html>
+
+

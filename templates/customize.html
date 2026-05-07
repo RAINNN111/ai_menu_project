@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ケーキオーダー</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Arial", sans-serif;
+
+            /* ⭐ 更高级奶油渐变背景 */
+            background: linear-gradient(180deg, #fff7f2 0%, #fff 100%);
+        }
+
+        /* ================= NAVBAR ================= */
+        /* ================= ヘッダー ================= */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 30px;
+
+            /* 改成奶油粉渐变，更像蛋糕店 */
+            background: linear-gradient(90deg, #ffffff, #fff1f4);
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-bottom: 1px solid #ffe3ea;
+        }
+
+        /* LOGO */
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d46a8c;
+            text-decoration: none; /* 去掉下划线 */
+            letter-spacing: 1px;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        /* 右侧导航 */
+        .nav-right a {
+            margin-left: 18px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #444;
+            transition: 0.3s;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* hover效果 */
+        .nav-right a:hover {
+            background: #ffe3ea;
+            color: #d46a8c;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ================= CONTAINER ================= */
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 30px 20px;
+        }
+
+        /* ================= CARD（重点升级） ================= */
+        .card {
+            background: rgba(255,255,255,0.9);
+            padding: 26px;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.08),
+                0 2px 8px rgba(255,182,193,0.2);
+
+            backdrop-filter: blur(6px);
+        }
+
+        /* 标题 */
+        .card h2 {
+            text-align: center;
+            color: #d46a8c;
+            margin-bottom: 20px;
+        }
+
+        /* ================= LABEL ================= */
+        label {
+            display: block;
+            margin-top: 14px;
+            margin-bottom: 6px;
+
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* ================= INPUT / SELECT ================= */
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+
+            border-radius: 12px;
+            border: 1px solid #eee;
+
+            background: #fff;
+
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffb3c6;
+            box-shadow: 0 0 0 3px rgba(255,179,198,0.2);
+        }
+
+        
+
+        /* ================= BUTTON ================= */
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 12px;
+
+            border: none;
+            border-radius: 14px;
+
+            background: linear-gradient(135deg, #ff9eb5, #ffb3c6);
+            color: white;
+
+            font-weight: bold;
+            font-size: 15px;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+            box-shadow: 0 6px 14px rgba(255,150,180,0.25);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(255,150,180,0.35);
+        }
+
+        /* ================= MODAL（重点修复+美化） ================= */
+        #modal {
+            position: fixed;
+            inset: 0;
+
+            display: none; /* 默认隐藏 */
+
+            justify-content: center;
+            align-items: center;
+
+            background: rgba(0,0,0,0.5);
+
+            z-index: 9999;
+        }
+
+        /* 打开时才 flex 居中 */
+        #modal.show {
+            display: flex;
+        }
+
+    /* ================= MODAL 图片优化 ================= */
+    #resultImg {
+        width: 100%;
+        max-width: 600px;   /* ⭐变大关键 */
+
+        aspect-ratio: 1 / 1; /* ⭐核心：强制正方形 */
+
+        display: block;
+        margin: 12px auto;
+
+        border-radius: 16px;
+
+        object-fit: cover;  /* 裁切，不拉伸 */
+
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    /* 弹窗内容整体再优化一点点 */
+    #modal-content {
+        width: 600px;
+        max-width: 95vw;
+
+        background: #fff;
+        padding: 22px;
+
+        border-radius: 20px;
+
+        text-align: center;
+    }
+
+    /* 让价格区也更舒服 */
+    #totalPrice {
+        font-size: 20px;
+        font-weight: bold;
+        color: #e74c3c;
+    }
+
+    /* 按钮统一一点间距 */
+    #modal button {
+        margin-top: 12px;
+    }
+
+        /* ================= CHECKBOX BOX ================= */
+        #flavorBox {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* 每一项：水平排列（修复你说的“跑上面”问题） */
+        #flavorBox label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 10px;
+            border-radius: 10px;
+
+            background: #fff;
+            border: 1px solid #f0f0f0;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        /* hover效果（更像可选卡片） */
+        #flavorBox label:hover {
+            background: #ffeef3;
+            border-color: #ffb3c6;
+        }
+
+        /* checkbox 本身修正对齐 */
+        #flavorBox input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<!-- ================= ヘッダー ================= -->
+<div class="navbar">
+
+    <!-- 左侧：LOGO + MENU -->
+    <div class="nav-left">
+        <a href="/menu/" class="logo">AI Sweet Shop</a>
+    </div>
+
+    <!-- 右侧：用户信息 + 功能 -->
+    <div class="nav-right">
+
+        <!-- Django 登录用户 -->
+        {% if request.user.is_authenticated %}
+            <span class="username">Hello, {{ request.user.username }}</span>
+        {% else %}
+            <span class="username">Guest</span>
+        {% endif %}
+
+        <a href="/profile/">👤</a>
+        <a href="/cart/">🛒</a>
+        <a href="javascript:void(0)" onclick="logout()">🚪</a>
+    </div>
+    <!-- 🔴 全局 Logout Modal -->
+    <div id="logoutModal" class="modal hidden">
+        <div class="modal-box">
+
+            <h3>ログアウトしますか？</h3>
+
+            <div class="modal-actions">
+                <button class="btn-yes" onclick="doLogout()">はい</button>
+                <button class="btn-no" onclick="closeLogout()">いいえ</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<body>
+
+<div class="container">
+
+        <div class="card">
+        <h2>🍰 ケーキオーダー</h2>
+
+        <!-- 👤 订购人（自动填） -->
+        <label>👤 ご注文者名</label>
+        <input type="text" id="customer_name" value="{{ request.user.username }}" readonly>
+
+        <!-- 🎂 蛋糕名字 -->
+        <label>🎂 ケーキ名</label>
+        <input type="text" id="cake_name" placeholder="例：バースデーケーキ">
+
+        <!-- 🍰 口味（改成多选） -->
+        <label>🍰 フレーバー（最大2つまで選択可能）</label>
+
+        <div id="flavorBox">
+            <label><input type="checkbox" value="chocolate"> チョコレート</label>
+            <label><input type="checkbox" value="strawberry"> いちご</label>
+            <label><input type="checkbox" value="cheese"> チーズ</label>
+            <label><input type="checkbox" value="tiramisu"> ティラミス</label>
+        </div>
+
+        <!-- 🏗️ 层数 -->
+        <label>🏗️ 段数</label>
+        <select id="layers">
+            <option value="1">1段</option>
+            <option value="2">2段</option>
+            <option value="3">3段</option>
+        </select>
+
+        <!-- 📏 尺寸 -->
+        <label>📏ケーキサイズ（インチ）</label>
+        <select id="size">
+            <option value="6">6インチ</option>
+            <option value="8">8インチ</option>
+            <option value="10">10インチ</option>
+        </select>
+
+        <!-- 📅 日期 + 紧急单 -->
+        <label>📅 予約日</label>
+        <input type="date" id="date">
+
+        <div style="margin-top:10px;">
+            <label>⚡ 緊急注文（追加料金）</label>
+            <select id="urgent">
+                <option value="0">通常（7日後）+0</option>
+                <option value="6000">1日後 +6000</option>
+                <option value="5000">2日後 +5000</option>
+                <option value="4000">3日後 +4000</option>
+                <option value="3000">4日後 +3000</option>
+                <option value="2000">5日後 +2000</option>
+                <option value="1000">6日後 +1000</option>
+            </select>
+        </div>
+
+        <!-- ⏰ 时间 -->
+        <label>⏰  取る時間（30分単位）</label>
+        <select id="time">
+            <option>09:00</option>
+            <option>09:30</option>
+            <option>10:00</option>
+            <option>10:30</option>
+            <option>11:00</option>
+            <option>11:30</option>
+            <option>12:00</option>
+            <option>12:30</option>
+            <option>13:00</option>
+            <option>13:30</option>
+            <option>14:00</option>
+            <option>14:30</option>
+            <option>15:00</option>
+            <option>15:30</option>
+            <option>16:00</option>
+            <option>16:30</option>
+            <option>17:00</option>
+            <option>17:30</option>
+            <option>18:00</option>
+        </select>
+
+        <button onclick="generateCake()">🎨 ケーキを生成</button>
+    </div>
+
+</div>
+
+<div id="modal">
+    <div id="modal-content">
+
+        <p id="loadingText">生成中です。しばらくお待ちください...</p>
+
+        <img id="resultImg" style="display:none; width:250px;" />
+
+        <br><br>
+
+        <div style="margin-top:10px; font-weight:bold; color:#e74c3c;">
+            💰 合計金額：<span id="totalPrice">0</span> 円
+        </div>
+
+        <button onclick="confirmOrder()">ケーキを注文する</button>
+        <button onclick="closeModal()">戻る</button>
+
+    </div>
+</div>
+
+<script>
+let currentData = null;
+
+/* =========================
+🍰 口味最多2个选择
+========================= */
+const flavorBox = document.querySelectorAll("#flavorBox input");
+
+flavorBox.forEach(cb => {
+    cb.addEventListener("change", function () {
+
+        const checked = document.querySelectorAll("#flavorBox input:checked");
+
+        if (checked.length > 2) {
+            this.checked = false;
+            alert("フレーバーは最大2つまで選択できます");
+        }
+
+    });
+});
+
+
+/* =========================
+📅 日期 + 紧急单动态控制
+========================= */
+const dateInput = document.getElementById("date");
+const urgentSelect = document.getElementById("urgent");
+
+function updateMinDate() {
+
+    const value = parseInt(urgentSelect.value);
+
+    const dayMap = {
+        6000: 1,
+        5000: 2,
+        4000: 3,
+        3000: 4,
+        2000: 5,
+        1000: 6,
+        0: 7
+    };
+
+    const days = dayMap[value] || 7;
+
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + days);
+
+    const minDate = targetDate.toISOString().split("T")[0];
+
+    dateInput.min = minDate;
+    dateInput.value = minDate; // ⭐自动填充
+}
+
+
+/* =========================
+💰 价格计算
+========================= */
+function calcPrice(flavorCount, layers, size, urgent) {
+
+    let price = flavorCount * 1000;
+    price += layers * 1000;
+
+    if (size == "6") price += 500;
+    if (size == "8") price += 1000;
+    if (size == "10") price += 1500;
+
+    price += urgent;
+
+    return price;
+}
+
+
+/* =========================
+🎨 生成蛋糕
+========================= */
+function generateCake() {
+
+    const flavor = getFlavors();
+    if (!flavor) return;
+
+    const layers = document.getElementById("layers").value;
+    const size = document.getElementById("size").value;
+    const urgent = parseInt(document.getElementById("urgent").value);
+
+    const cake_name = document.getElementById("cake_name").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    const price = calcPrice(flavor.length, layers, size, urgent);
+
+    document.getElementById("totalPrice").innerText = price;
+
+    document.getElementById("modal").style.display = "flex";
+
+    fetch("/api/cake/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            flavor,
+            layers,
+            size,
+            price,
+            cake_name,
+            reserved_date: date,
+            reserved_time: time,
+            urgent
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.image_url) {
+            currentData = data;
+
+            document.getElementById("resultImg").src = data.image_url;
+            document.getElementById("resultImg").style.display = "block";
+
+            // ⭐隐藏 loading
+            document.getElementById("loadingText").style.display = "none";
+        }
+    });
+}
+
+
+/* =========================
+📦 确认订单
+========================= */
+function confirmOrder() {
+
+    const flavor = getFlavors();
+    const layers = document.getElementById("layers").value;
+    const size = document.getElementById("size").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+    const customer_name = document.getElementById("customer_name").value;
+
+    const urgent = parseInt(document.getElementById("urgent").value);
+
+    fetch("/api/order/confirm/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            image_url: currentData.image_url,
+            flavor,
+            layers,
+            size,
+            reserved_date: date,
+            reserved_time: time,
+            cake_name: document.getElementById("cake_name").value,
+            customer_name,
+            price: calcPrice(flavor.length, layers, size, urgent)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        window.location.href = "/profile/";
+    });
+}
+
+
+/* =========================
+📅 初始化（只执行一次）
+========================= */
+window.onload = function () {
+
+    updateMinDate(); // ⭐初始化日期
+
+    urgentSelect.addEventListener("change", updateMinDate);
+};
+
+
+/* =========================
+🍰 获取口味（最多2个）
+========================= */
+function getFlavors() {
+
+    const checked = document.querySelectorAll("#flavorBox input:checked");
+
+    if (checked.length === 0) {
+        alert("フレーバーを少なくとも1つ選択してください");
+        return null;
+    }
+
+    return Array.from(checked).map(i => i.value);
+}
+
+
+/* =========================
+❌ 关闭弹窗
+========================= */
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+/* LOUGOUT */
+function logout() {
+    document.getElementById("logoutModal").classList.remove("hidden");
+}
+
+function closeLogout() {
+    document.getElementById("logoutModal").classList.add("hidden");
+}
+
+function doLogout() {
+    window.location.href = "/logout/do/";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>👤 マイページ</title>
+
+<style>
+
+        /* ================= BASE ================= */
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #fff7f2;
+        }
+
+        /* ================= LAYOUT ================= */
+        .profile-container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        /* ================= CARD ================= */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ================= NAVBAR ================= */
+        /* ================= ヘッダー ================= */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 30px;
+
+            /* 改成奶油粉渐变，更像蛋糕店 */
+            background: linear-gradient(90deg, #ffffff, #fff1f4);
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-bottom: 1px solid #ffe3ea;
+        }
+
+        /* LOGO */
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d46a8c;
+            text-decoration: none; /* 去掉下划线 */
+            letter-spacing: 1px;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        /* 右侧导航 */
+        .nav-right a {
+            margin-left: 18px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #444;
+            transition: 0.3s;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* hover效果 */
+        .nav-right a:hover {
+            background: #ffe3ea;
+            color: #d46a8c;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ================= TAB ================= */
+        .tab-bar {
+            display:flex;
+            gap:10px;
+            margin-top:10px;
+            justify-content:center;
+        }
+
+        .tab {
+            padding:8px 14px;
+            border:none;
+            border-radius:20px;
+            cursor:pointer;
+            background:#f2f2f2;
+            font-weight:bold;
+        }
+
+        .tab.active {
+            background:#ffb3c6;
+            color:white;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+        }
+
+        /* ================= HIDDEN ================= */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ================= ORDER ================= */
+        .order-card,
+        .ai-order-card {
+            display: flex;
+            align-items: center;
+
+            padding: 14px 16px;
+            margin-top: 10px;
+
+            background: #fdfdfd;
+            border-radius: 12px;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease; /* ⭐关键 */
+        }
+
+        /* 左（标题） */
+        .order-title {
+            width: 45%;
+            font-weight: 500;
+        }
+
+        /* 中（时间）⭐居中固定 */
+        .order-time {
+            width: 35%;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 右（价格） */
+        .order-price {
+            width: 20%;
+            text-align: right;
+            color: #e74c3c;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .order-card:hover,
+        .ai-order-card:hover {
+            transform: scale(1.03);
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .order-card,
+        .ai-order-card {
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .order-card:hover,
+        .ai-order-card:hover {
+            border: 1px solid #ffe3ea;
+        }
+
+        /* ================= MODAL BACKDROP ================= */
+        .modal {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: rgba(0,0,0,0.5);
+
+            z-index: 9999;
+        }
+
+        /* ================= MODAL BOX ================= */
+        .modal-content {
+            width: 650px;
+            max-width: 90vw;
+            max-height: 85vh;
+
+            background: #fff;
+            border-radius: 16px;
+
+            padding: 20px;
+
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+        }
+
+        /* ================= CLOSE BUTTON ================= */
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+
+            font-size: 26px;
+            font-weight: bold;
+            cursor: pointer;
+
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+            background: #fff;
+
+            z-index: 10000;
+        }
+
+        .close:hover {
+            background: #ffe3ea;
+        }
+
+        /* ================= MODAL CONTENT AREA ================= */
+        #orderDetail {
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        /* ================= ITEM ================= */
+        .modal-item {
+            display:flex;
+            gap:12px;
+            padding:10px;
+            background:#f9f9f9;
+            border-radius:10px;
+            margin-bottom:10px;
+        }
+
+        .modal-img-small {
+            width:55px;
+            height:55px;
+            border-radius:8px;
+            object-fit:cover;
+        }
+
+        /* ================= BUTTON ================= */
+        .btn {
+            width:100%;
+            margin-top:10px;
+            padding:10px;
+            background:linear-gradient(135deg,#ff9eb5,#ffb3c6);
+            border:none;
+            border-radius:10px;
+            color:white;
+            font-weight:bold;
+        }
+
+        .link-btn {
+            background:none;
+            border:none;
+            color:#d46a8c;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        /* ================= COUPON ================= */
+        .coupon-card {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        /* 🟢 可用（推荐色：清新绿） */
+        .coupon-card.available {
+            background: #eafff1;
+            border: 1px solid #b6f2c2;
+            color: #1b7f3a;
+        }
+
+        /* ⚪ 使用済み（灰色） */
+        .coupon-card.used {
+            background: #f2f2f2;
+            border: 1px solid #dddddd;
+            color: #888;
+            opacity: 0.8;
+        }
+
+        /* 🔴 期限切れ（淡红） */
+        .coupon-card.expired {
+            background: #ffecec;
+            border: 1px solid #ffb3b3;
+            color: #b30000;
+            opacity: 0.85;
+        }
+        /* =========================
+        AI Modal 图片
+        ========================= */
+        .ai-modal-img {
+            width: 100%;
+            max-width: 320px;   /* ⭐限制最大宽度 */
+            height: 220px;      /* ⭐固定高度更整齐 */
+            object-fit: cover;  /* ⭐裁剪不变形 */
+
+            display: block;
+            margin: 0 auto 15px auto;
+
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+
+        /* =========================
+        信息区域
+        ========================= */
+        .info {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 每一行稍微间距 */
+        .info p {
+            margin: 6px 0;
+        }
+
+        /* =========================
+        Modal整体优化（可选）
+        ========================= */
+        #orderDetail {
+            padding: 10px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<!-- ================= ヘッダー ================= -->
+<div class="navbar">
+
+    <!-- 左侧：LOGO + MENU -->
+    <div class="nav-left">
+        <a href="/menu/" class="logo">AI Sweet Shop</a>
+    </div>
+
+    <!-- 右侧：用户信息 + 功能 -->
+    <div class="nav-right">
+
+        <!-- Django 登录用户 -->
+        {% if request.user.is_authenticated %}
+            <span class="username">Hello, {{ request.user.username }}</span>
+        {% else %}
+            <span class="username">Guest</span>
+        {% endif %}
+
+        <a href="/profile/">👤</a>
+        <a href="/cart/">🛒</a>
+        <a href="javascript:void(0)" onclick="logout()">🚪</a>
+    </div>
+    <!-- 🔴 全局 Logout Modal -->
+    <div id="logoutModal" class="modal hidden">
+        <div class="modal-box">
+
+            <h3>ログアウトしますか？</h3>
+
+            <div class="modal-actions">
+                <button class="btn-yes" onclick="doLogout()">はい</button>
+                <button class="btn-no" onclick="closeLogout()">いいえ</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="profile-container">
+
+<h2>👤 マイページ</h2>
+
+<div class="card">
+    <h3>マイページ</h3>
+    <p>ユーザー名：{{ user.username }}</p>
+</div>
+
+<!-- TAB -->
+<div class="card">
+    <div class="tab-bar">
+        <button class="tab active" onclick="switchTab('orders')">注文オーダー履歴</button>
+        <button class="tab" onclick="switchTab('ai')">AIオーダー履歴</button>
+        <button class="tab" onclick="switchTab('coupon')">クーポン</button>
+    </div>
+</div>
+
+<!-- ORDERS -->
+<div class="tab-content" id="tab-orders">
+<div class="card">
+{% for order in orders %}
+<div class="order-card" onclick="openOrder({{ order.id }})">
+
+    <div class="order-title">
+        🍰 {{ order.cake_name|default:"注文ケーキ履歴" }}
+    </div>
+
+    <div class="order-time">
+        {{ order.created_at|date:"Y-m-d H:i" }}
+    </div>
+
+    <div class="order-price">
+        {{ order.price }}円
+    </div>
+
+</div>
+{% endfor %}
+</div>
+</div>
+
+<!-- AI -->
+<div class="tab-content hidden" id="tab-ai">
+<div class="card">
+{% for item in ai_orders %}
+<div class="ai-order-card" onclick="openAIOrder('{{ item.id }}')">
+
+    <div class="order-title">
+        🤖 AIケーキ履歴
+    </div>
+
+    <div class="order-time">
+        {{ item.order.created_at|date:"Y-m-d H:i" }}
+    </div>
+
+    <div class="order-price">
+        {{ item.order.price }}円
+    </div>
+
+</div>
+{% endfor %}
+</div>
+</div>
+
+<!-- COUPON -->
+<div class="tab-content hidden" id="tab-coupon">
+<div class="card">
+
+<input id="newCouponCode" placeholder="code">
+<button onclick="bindCoupon()">追加</button>
+
+{% for c in coupons %}
+<div class="coupon-card
+    {% if c.is_used %}
+        used
+    {% elif c.expires_at < now %}
+        expired
+    {% else %}
+        available
+    {% endif %}
+">
+    <div>🎫 {{ c.amount }}円 OFF</div>
+
+    <div>
+        {% if c.is_used %}
+            使用済み
+        {% elif c.expires_at < now %}
+            期限切れ
+        {% else %}
+            利用可能
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+</div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="orderModal" class="modal hidden">
+<div class="modal-content">
+
+<span class="close" onclick="closeOrder()">&times;</span>
+
+<h3>注文詳細</h3>
+<div id="orderDetail"></div>
+
+</div>
+</div>
+
+<script>
+
+/* TAB */
+function switchTab(tab) {
+
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
+
+    document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    event.target.classList.add('active');
+}
+
+/* MODAL OPEN */
+function openOrder(orderId) {
+
+    fetch(`/order/${orderId}/`)
+    .then(r => r.json())
+    .then(data => {
+
+        let html = "";
+
+         // ===== 商品列表 =====
+            data.items.forEach(item => {
+                html += `
+                <div class="modal-item">
+                    <img src="${item.image}" class="modal-img-small">
+
+                    <div>
+                        <div>${item.name}</div>
+
+                        <div class="row">
+                            <div>×${item.quantity}</div>
+                            <div style="color:#e74c3c;font-weight:bold;">
+                                ${item.subtotal}円
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            // ===== 价格区（重点🔥）=====
+            html += `
+                <hr>
+
+                <div class="modal-footer">
+
+                    <div>注文時間：${data.created_at}</div>
+
+                    <div style="margin-top:8px;">
+                        商品合計：${data.total}円
+                    </div>
+
+                    <div style="color:#4caf50;">
+                        割引：- ${data.discount || 0}円
+                    </div>
+
+                    <div class="modal-grand-total" style="margin-top:6px;">
+                        お支払い金額：${data.final}円
+                    </div>
+
+                </div>
+            `;
+
+        document.getElementById("orderDetail").innerHTML = html;
+        document.getElementById("orderModal").classList.remove("hidden");
+    });
+}
+
+/* CLOSE */
+function closeOrder() {
+    document.getElementById("orderModal").classList.add("hidden");
+}
+
+
+/* ====== 你原来的JS全部保留 ====== */
+
+function bindCoupon() {
+
+    const code = document.getElementById("newCouponCode").value;
+
+    fetch("/coupon/bind/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data.success) {
+            alert(data.message);
+            return;
+        }
+
+        alert("クーポンを追加しました");
+        location.reload();
+    });
+}
+
+function openAIOrder(id) {
+
+    fetch(`/api/ai-order/${id}/`)
+        .then(res => res.json())
+        .then(data => {
+
+            // ===== 🍰 口味映射 =====
+            const flavorMap = {
+            chocolate: "チョコレート",
+            strawberry: "いちご",
+            cheese: "チーズ",
+            tiramisu: "ティラミス"
+        };
+
+        let flavorArray;
+
+        try {
+            flavorArray = Array.isArray(data.flavor)
+                ? data.flavor
+                : JSON.parse(data.flavor.replace(/'/g, '"'));
+        } catch (e) {
+            flavorArray = [data.flavor];
+        }
+
+        let flavors = flavorArray
+            .map(f => flavorMap[f] || f)
+            .join(" ＆ ");
+
+            let html = `
+        <img src="${data.image}" class="ai-modal-img">
+
+        <div class="info">
+            <p>👤 ご注文者：${data.username}</p>
+            <p>🎂 ケーキ名：${data.cake_name}</p>
+            <p>🍰 フレーバー：${flavors}</p>
+            <p>🎂 段数：${data.layers}段</p>
+            <p>📏 サイズ：${data.size}号</p>
+
+
+            <p>📅 予約日：${data.reserved_date}</p>
+            <p>⏰ 予約時間：${data.reserved_time}</p>
+
+            <p>🕒 注文時間：${data.created_at}</p>
+            <p>💰 価格：${data.price}円</p>
+        </div>
+    `;
+
+            document.getElementById("orderDetail").innerHTML = html;
+            document.getElementById("orderModal").classList.remove("hidden");
+        });
+}
+
+function togglePassword() {
+    const form = document.getElementById("passwordForm");
+
+    if (form.classList.contains("hidden")) {
+        form.classList.remove("hidden");
+    } else {
+        form.classList.add("hidden");
+    }
+}
+
+/* LOUGOUT */
+function logout() {
+    document.getElementById("logoutModal").classList.remove("hidden");
+}
+
+function closeLogout() {
+    document.getElementById("logoutModal").classList.add("hidden");
+}
+
+function doLogout() {
+    window.location.href = "/logout/do/";
+}
+</script>

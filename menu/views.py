@@ -512,7 +512,9 @@ def cart_delete(request):
     return JsonResponse({"success": True, "total": float(total)})
 
 def register(request):
+
     if request.method == "POST":
+
         data = json.loads(request.body)
 
         username = data.get("username")
@@ -520,23 +522,28 @@ def register(request):
         flavors = data.get("flavors", [])
 
         if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": "ユーザー名は既に存在します"})
+            return JsonResponse({
+                "error": "ユーザー名は既に存在します"
+            })
 
         user = User.objects.create_user(
             username=username,
             password=password
         )
 
-        # ⭐⭐⭐ 核心：保存 flavor
+        preference, _ = UserPreference.objects.get_or_create(
+            user=user
+        )
+
         for f in flavors:
             flavor_obj, _ = Flavor.objects.get_or_create(name=f)
-            user.preferred_flavors.add(flavor_obj)
+            preference.preferred_flavors.add(flavor_obj)
 
-        user.save()
+        return JsonResponse({
+            "status": "登録成功"
+        })
 
-        return JsonResponse({"status": "登録成功"})
-
-    return render(request, "ai_upload.html")
+    return render(request, "profile.html")
 
 def cart_view(request):
 

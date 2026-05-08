@@ -98,7 +98,6 @@ class Menu(models.Model):
     def __str__(self):
         return self.name
     
-User.add_to_class(
-    "preferred_flavors",
-    models.ManyToManyField(Flavor, blank=True)
-)
+class UserPreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    preferred_flavors = models.ManyToManyField(Flavor, blank=True)

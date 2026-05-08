@@ -610,7 +610,7 @@ def menu_list(request):
     if request.user.is_authenticated:
 
         # ⭐1. 用户偏好（注册选择）
-        pref_flavors = request.user.preferred_flavors.all()
+        pref_flavors = request.user.userpreference.preferred_flavors.all()
 
         # ⭐2. 订单行为
         orders = OrderItem.objects.filter(order__user=request.user)

@@ -2,7 +2,7 @@
 .env
 
 # database
-db.sqlite3
+
 
 # python cache
 __pycache__/

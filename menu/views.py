@@ -26,6 +26,7 @@ from django.shortcuts import redirect
 from .models import Flavor
 from .models import Order, AIOrder, Favorite
 from django.conf import settings 
+from .models import UserPreference
 
 def bind_coupon(request):
 
@@ -610,7 +611,11 @@ def menu_list(request):
     if request.user.is_authenticated:
 
         # ⭐1. 用户偏好（注册选择）
-        pref_flavors = request.user.preferred_flavors.all()
+        preference, created = UserPreference.objects.get_or_create(
+            user=request.user
+        )
+
+        pref_flavors = preference.preferred_flavors.all()
 
         # ⭐2. 订单行为
         orders = OrderItem.objects.filter(order__user=request.user)
